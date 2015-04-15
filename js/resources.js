@@ -78,6 +78,10 @@
         return resourceCache[url];
     }
 
+    function getCount() {
+        return resourceCount;
+    }
+
     /* This function determines if all of the images that have been requested
      * for loading have in fact been completed loaded.
      */

@@ -80,7 +80,7 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
     }
 
     /* This is called by the update function  and loops through all of the
@@ -95,6 +95,38 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
+    }
+
+    /* Detect whether player is within boundaries of an enemy. If so, player loses and restart the game.
+     * Also detect whether player is within same boundaries of a gem. If so, player earns a point, and the gem respawns again.
+     *
+     */
+    function checkCollisions() {
+        var i=0; // Enemy index
+
+        // Check whether player came in contact with each enemy
+        allEnemies.forEach( function( enemy ) {
+//            console.log("player pos: "+player.x+","+player.y+"; enemy("+i+") pos: "+enemy.x+","+enemy.y);
+            if ( player.x < enemy.x + 60 && player.x + 60 > enemy.x && player.y < enemy.y + 60 && player.y + 50 > enemy.y )
+            {
+                // global reset (player, bugs, gem, score) and restart game
+                reset();
+            }
+            i++;
+        } );
+
+        // Check whether player came in contact with a gem
+//        console.log("player pos: "+player.x+","+player.y+"; gem pos: "+gem.x+","+gem.y);
+        if ( player.x < gem.x + 60 && player.x + 60 > gem.x && player.y < gem.y + 85 && player.y + 50 > gem.y ) {
+            player.score++;
+
+            // update the score
+            document.getElementById("score").innerHTML = player.score;
+
+            // reset the gem, and respawn in a different location
+            gem.reset();
+        }
+
     }
 
     /* This function initially draws the "game level", it will then call
@@ -153,6 +185,7 @@ var Engine = (function(global) {
         });
 
         player.render();
+        gem.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -161,6 +194,13 @@ var Engine = (function(global) {
      */
     function reset() {
         // noop
+        player.reset();
+        //document.getElementById( "score" ).innerHTML = player.score;
+        allEnemies.forEach( function( enemy )
+        {
+            enemy.reset();
+        });
+        gem.reset();
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -172,7 +212,16 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/enemy-bug-toleft.png',
+        'images/Gem Blue.png',
+        'images/Gem Green.png',
+        'images/Gem Orange.png',
+        'images/Rock.png',
+        'images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png'
     ]);
     Resources.onReady(init);
 
