@@ -104,19 +104,38 @@ var Engine = (function(global) {
     function checkCollisions() {
         var i=0; // Enemy index
 
-        // Check whether player came in contact with each enemy
+        // Check whether player came in contact with each enemy, and if enemy encounters a rock
         allEnemies.forEach( function( enemy ) {
-//            console.log("player pos: "+player.x+","+player.y+"; enemy("+i+") pos: "+enemy.x+","+enemy.y);
             if ( player.x < enemy.x + 60 && player.x + 60 > enemy.x && player.y < enemy.y + 60 && player.y + 50 > enemy.y )
             {
                 // global reset (player, bugs, gem, score) and restart game
                 reset();
             }
+
+            // If a bug encounters a rock, just change its direction
+            if ( rock.x < enemy.x + 100 && rock.x + 100 > enemy.x && rock.y < enemy.y + 60 && rock.y + 50 > enemy.y )
+            {
+                enemy.direction = -1 * enemy.direction;
+                enemy.sprite = enemy.getEnemySprite(enemy.direction);
+
+                // Set constant speed of this enemy
+                enemy.speed = enemy.getSpeed() * enemy.direction;
+            }
+
+            // If a bug encounters a gem, just change its direction
+            if ( gem.x < enemy.x + 100 && gem.x + 100 > enemy.x && gem.y < enemy.y + 60 && gem.y + 50 > enemy.y )
+            {
+                enemy.direction = -1 * enemy.direction;
+                enemy.sprite = enemy.getEnemySprite(enemy.direction);
+
+                // Set constant speed of this enemy
+                enemy.speed = enemy.getSpeed() * enemy.direction;
+            }
+
             i++;
         } );
 
         // Check whether player came in contact with a gem
-//        console.log("player pos: "+player.x+","+player.y+"; gem pos: "+gem.x+","+gem.y);
         if ( player.x < gem.x + 60 && player.x + 60 > gem.x && player.y < gem.y + 85 && player.y + 50 > gem.y ) {
             player.score++;
 
@@ -126,6 +145,20 @@ var Engine = (function(global) {
             // reset the gem, and respawn in a different location
             gem.reset();
         }
+
+        // reset Gem if Rock and Gem in same location. (Can't move rock)
+        if ( rock.x < gem.x + 60 && rock.x + 60 > gem.x && rock.y < gem.y + 85 && rock.y + 50 > gem.y ) {
+            gem.reset();
+        }
+
+        // However, player is blocked from movement if player collides with rock
+        if ( player.x < rock.x + 60 && player.x + 60 > rock.x && player.y < rock.y + 85 && player.y + 50 > rock.y ) {
+            player.changeX = -1 * player.lastChangeX;
+            player.changeY = -1 * player.lastChangeY;
+            player.update();
+        }
+
+
 
     }
 
@@ -186,6 +219,7 @@ var Engine = (function(global) {
 
         player.render();
         gem.render();
+        rock.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -201,6 +235,7 @@ var Engine = (function(global) {
             enemy.reset();
         });
         gem.reset();
+        rock.reset();
     }
 
     /* Go ahead and load all of the images we know we're going to need to

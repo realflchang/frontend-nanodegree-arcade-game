@@ -84,7 +84,16 @@ Enemy.prototype.reset = function() {
 
 }
 
+// Functions to define how to pause/unpause enemies
+Enemy.prototype.pause = function() {
+        this.savedSpeed = this.speed;
+        this.speed = 0;
+}
 
+Enemy.prototype.unpause = function() {
+        this.speed = this.savedSpeed;
+        this.savedSpeed = 0;
+}
 
 // Now write your own player class
 // This class requires an update(), render() and
@@ -101,6 +110,10 @@ var Player = function() {
     this.y = 600;
     this.changeX = 0;
     this.changeY = 0;
+
+    // These are for restoring movements. In use when player collides with rock object.
+    this.lastChangeX = 0;
+    this.lastChangeY = 0;
 
     // Reset score
     this.score = 0;
@@ -134,6 +147,8 @@ Player.prototype.update = function() {
     else {
         this.x += this.changeX;
         this.y += this.changeY;
+        this.lastChangeX = this.changeX;
+        this.lastChangeY = this.changeY;
     }
 
     // reset current movement
@@ -180,16 +195,6 @@ Player.prototype.handleInput = function( key )
     }
 }
 
-
-Enemy.prototype.pause = function() {
-        this.savedSpeed = this.speed;
-        this.speed = 0;
-}
-
-Enemy.prototype.unpause = function() {
-        this.speed = this.savedSpeed;
-        this.savedSpeed = 0;
-}
 
 function pauseGame() {
     if (!pauseState) {
@@ -267,6 +272,38 @@ Gem.prototype.getRandomGem = function() {
 }
 
 
+// Define Rock Object
+var Rock = function() {
+    this.sprite = this.getRandomRock();
+
+    // Rock appear at random X locations and
+    // on the same rows as the bugs;
+    // Rock won't initially appear on the bottom row with the player
+    this.x = Math.floor( ( Math.random() * 404 ) + 1 );
+    this.y = Math.floor( ( Math.random() * 4 ) + 1 ) * 83;
+
+    this.scoreValue = -1;
+}
+
+Rock.prototype.render = function() {
+    ctx.drawImage( Resources.get( this.sprite ), this.x, this.y );
+}
+
+Rock.prototype.reset = function() {
+    this.x = Math.floor( ( Math.random() * 404 ) + 1 );
+    this.y = Math.floor( ( Math.random() * 4 ) + 1 ) * 83;
+    this.sprite = this.getRandomRock();
+}
+
+Rock.prototype.getRandomRock = function() {
+    var rockImages = [
+        'images/Rock.png'
+        ];
+
+    return rockImages[0];
+}
+
+
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
@@ -277,6 +314,7 @@ for (var i=0; i<numOfEnemies; i++) {
 }
 var player = new Player();
 var gem = new Gem();
+var rock = new Rock();
 var pauseState = false;
 
 // This listens for key presses and sends the keys to your
