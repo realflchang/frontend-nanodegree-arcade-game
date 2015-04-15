@@ -100,10 +100,10 @@ Enemy.prototype.unpause = function() {
 // a handleInput() method.
 var Player = function() {
 
-    var playChar = 0;
+    this.playChar = 0; // default, use boy as character
 
     // Load a player character
-    this.sprite = this.getPlayChar(playChar);
+    this.sprite = this.getPlayChar(this.playChar);
 
     // Initial placement
     this.x = 200;
@@ -219,7 +219,7 @@ Player.prototype.reset = function() {
     this.changeY = 0;
 
     this.score = 0;
-    this.sprite = this.getPlayChar(0);
+    this.sprite = this.getPlayChar(this.playChar);
 }
 
 Player.prototype.getPlayChar = function(playChar) {
@@ -232,8 +232,8 @@ Player.prototype.getPlayChar = function(playChar) {
         ];
 
     //Pick random Player.
-    var rnd = Math.floor( Math.random() * 5);
-    return playerImages[rnd];
+    //var rnd = Math.floor( Math.random() * 5);
+    return playerImages[playChar];
 }
 
 // Define Gem object
@@ -274,6 +274,7 @@ Gem.prototype.getRandomGem = function() {
 
 // Define Rock Object
 var Rock = function() {
+    this.allowRock = "rock";
     this.sprite = this.getRandomRock();
 
     // Rock appear at random X locations and
@@ -282,7 +283,6 @@ var Rock = function() {
     this.x = Math.floor( ( Math.random() * 404 ) + 1 );
     this.y = Math.floor( ( Math.random() * 4 ) + 1 ) * 83;
 
-    this.scoreValue = -1;
 }
 
 Rock.prototype.render = function() {
@@ -303,6 +303,22 @@ Rock.prototype.getRandomRock = function() {
     return rockImages[0];
 }
 
+function changePlayer(playChar) {
+    player.playChar = playChar;
+    player.sprite = player.getPlayChar(playChar);
+}
+
+function changeRockMode(allowRock) {
+    rock.allowRock = allowRock;
+    if (allowRock == "norock") { // if no rock, just move it offscreen so nothing will collide with it
+        rock.x = -500;
+        rock.y = -500;
+    } else { // if rock, just restore it back onscreen
+        rock.x = Math.floor( ( Math.random() * 404 ) + 1 );
+        rock.y = Math.floor( ( Math.random() * 4 ) + 1 ) * 83;
+    }
+
+}
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies

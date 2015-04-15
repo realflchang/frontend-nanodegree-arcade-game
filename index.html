@@ -13,6 +13,25 @@
     <div id="score"> 0 </div>
     <p>Press P to pause game.</p>
 
+	<form>
+		<p>Select a Character:
+		<select name="char" onchange="changePlayer(this.value)">
+		  <option value="0">Boy</option>
+		  <option value="1">Cat Girl</option>
+		  <option value="2">Horn Girl</option>
+		  <option value="3">Pink Girl</option>
+		  <option value="4">Princess Girl</option>
+		</select>
+		</p>
+
+		<p>Allow Rock:
+		<select name="mode" onchange="changeRockMode(this.value)">
+		  <option value="norock">No Rock</option>
+		  <option value="rock" selected>Rock</option>
+		</select>
+		</p>
+
+	</form>
 
 </body>
 </html>
