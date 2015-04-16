@@ -81,6 +81,7 @@ var Engine = (function(global) {
     function update(dt) {
         updateEntities(dt);
         checkCollisions();
+        timer.update();
     }
 
     /* This is called by the update function  and loops through all of the
@@ -108,8 +109,9 @@ var Engine = (function(global) {
         allEnemies.forEach( function( enemy ) {
             if ( player.x < enemy.x + 60 && player.x + 60 > enemy.x && player.y < enemy.y + 60 && player.y + 50 > enemy.y )
             {
-                // global reset (player, bugs, gem, score) and restart game
-                reset();
+                //// global reset (player, bugs, gem, score) and restart game
+                //reset();
+                gameOver();
             }
 
             // If a bug encounters a rock, just change its direction
@@ -227,6 +229,7 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
+        /**
         // noop
         player.reset();
         //document.getElementById( "score" ).innerHTML = player.score;
@@ -236,6 +239,9 @@ var Engine = (function(global) {
         });
         gem.reset();
         rock.reset();
+        timer.reset();
+        **/
+        restartGame();
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -266,3 +272,4 @@ var Engine = (function(global) {
      */
     global.ctx = ctx;
 })(this);
+

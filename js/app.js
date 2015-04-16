@@ -168,22 +168,22 @@ Player.prototype.handleInput = function( key )
     switch( key )
     {
         case 'left':
-            if (!pauseState)
+            if (!isPauseState)
               this.changeX = -30;
             break;
 
         case 'up':
-            if (!pauseState)
+            if (!isPauseState)
               this.changeY = -30;
             break;
 
         case 'right':
-            if (!pauseState)
+            if (!isPauseState)
               this.changeX = 30;
             break;
 
         case 'down':
-            if (!pauseState)
+            if (!isPauseState)
               this.changeY = 30;
             break;
         case 'pause':
@@ -197,18 +197,25 @@ Player.prototype.handleInput = function( key )
 
 
 function pauseGame() {
-    if (!pauseState) {
-        allEnemies.forEach( function( enemy ) {
-            enemy.pause();
-        });
-        pauseState = true;
-    } else {
+    //console.log("pauseGame1 isPauseState,isGameOver="+isPauseState+","+isGameOver)
+    if (isPauseState && !isGameOver) {
         allEnemies.forEach( function( enemy ) {
             enemy.unpause();
         });
-        pauseState = false;
+        timer.resumeGameTime();
+        isPauseState = false;
+    }
+    else {
+    //console.log("pauseGame2 isPauseState,isGameOver="+isPauseState+","+isGameOver)
+        allEnemies.forEach( function( enemy ) {
+            enemy.pause();
+        });
+        timer.pauseGameTime();
+        isPauseState = true;
     }
 }
+
+
 
 // This function resets the player's position and score
 Player.prototype.reset = function() {
@@ -275,6 +282,7 @@ Gem.prototype.getRandomGem = function() {
 // Define Rock Object
 var Rock = function() {
     this.allowRock = "rock";
+
     this.sprite = this.getRandomRock();
 
     // Rock appear at random X locations and
@@ -293,6 +301,9 @@ Rock.prototype.reset = function() {
     this.x = Math.floor( ( Math.random() * 404 ) + 1 );
     this.y = Math.floor( ( Math.random() * 4 ) + 1 ) * 83;
     this.sprite = this.getRandomRock();
+    //console.log(document.getElementById("mode").value)
+    //this.allowRock = document.getElementById("mode").value;
+    changeRockMode(document.getElementById("mode").value)
 }
 
 Rock.prototype.getRandomRock = function() {
@@ -309,6 +320,8 @@ function changePlayer(playChar) {
 }
 
 function changeRockMode(allowRock) {
+    //if (isGameOver) return;
+
     rock.allowRock = allowRock;
     if (allowRock == "norock") { // if no rock, just move it offscreen so nothing will collide with it
         rock.x = -500;
@@ -318,6 +331,94 @@ function changeRockMode(allowRock) {
         rock.y = Math.floor( ( Math.random() * 4 ) + 1 ) * 83;
     }
 
+}
+
+function restartGame() {
+
+        // noop
+        player.reset();
+        //document.getElementById( "score" ).innerHTML = player.score;
+        allEnemies.forEach( function( enemy )
+        {
+            enemy.reset();
+        });
+        gem.reset();
+        rock.reset();
+        timer.reset();
+        isPauseState = false;
+        isGameOver = false;
+}
+
+function gameOver() {
+            console.log("Game Over. Final score is "+player.score+".");
+        //    pauseState = true;
+            isGameOver = true;
+            pauseGame();
+}
+
+// Object to keep track of clock during game
+var Timer = function() {
+//console.log("date.now="+Date.now());
+
+    var SECONDSPERGAME = 10;
+
+    this.initialClock = Date.now() / 1000; // time is in milliseconds
+
+    // Allotted time per game
+    this.secondsPerGame = SECONDSPERGAME;
+    //this.finishTime = this.secondsPerGame + this.initialClock;
+
+    this.currentTime = this.initialClock;
+
+    this.pauseTime = 0;
+
+}
+
+Timer.prototype.update = function() {
+    this.currentTime = Date.now() / 1000;
+    var gameclock = this.currentTime - this.initialClock;
+
+    if (gameclock <= this.secondsPerGame+1 && !isPauseState) {
+        // update the clock
+        document.getElementById("clock").innerHTML = Math.floor(this.currentTime - this.initialClock);
+    } else {
+
+        if (!isPauseState) {
+        //    allEnemies.forEach( function( enemy ) {
+        //        enemy.pause();
+        //    });
+        ////    console.log("Game Over. Final score is "+player.score+".");
+        //    pauseState = true;
+        ////    pauseGame();
+        ////    isGameOver = true;
+            gameOver();
+        }
+
+    }
+
+}
+
+Timer.prototype.getCurrentTime = function() {
+    return this.currentTime;
+}
+
+//Timer.prototype.getFinalTime = function() {
+//    return this.finishTime;
+//}
+
+// To preserve game time, save time when game paused. Later when game resumes, find amount of time passed, add difference back to initial time.
+Timer.prototype.pauseGameTime = function() {
+    this.pauseTime = this.currentTime;
+}
+
+Timer.prototype.resumeGameTime = function() {
+    this.initialClock += (this.currentTime - this.pauseTime);
+}
+
+Timer.prototype.reset = function() {
+    this.initialClock = Date.now() / 1000; // time is in milliseconds
+    //this.finishTime = this.secondsPerGame + this.initialClock;
+    this.currentTime = this.initialClock;
 }
 
 // Now instantiate your objects.
@@ -331,7 +432,10 @@ for (var i=0; i<numOfEnemies; i++) {
 var player = new Player();
 var gem = new Gem();
 var rock = new Rock();
-var pauseState = false;
+var timer = new Timer();
+var isPauseState = false;
+var isGameOver = false;
+var showRock = true;
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
