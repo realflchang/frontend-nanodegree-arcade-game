@@ -6,22 +6,32 @@ var Enemy = function(rowNum) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
 
+    // Initialize enemy (define direction, sprite, speed, starting x & y)
+    this.init(rowNum);
+
+    // Variable to preserving speed when pausing the game
+    this.savedSpeed=0;
+
+}
+
+// Initialize enemy (define direction, sprite, speed, starting x & y)
+Enemy.prototype.init = function(rowNum) {
+    // For each enemy, determine direction and sprite to use
     this.direction = this.getDirection();
     this.sprite = this.getEnemySprite(this.direction);
 
-    // Set constant speed of this enemy
+    // Set speed of this enemy. Direction is -1 for left, +1 for right.
     this.speed = this.getSpeed() * this.direction;
 
+    // Define starting position
     this.x = (this.direction === 1) ? -101:589;
     this.y = rowNum * 83; // Define row position
-
-    this.savedSpeed=0; // For preserving speed when pausing the game
 
 }
 
 // Defines enemy direction, sprite and speed
 Enemy.prototype.getDirection = function() {
-    // Using 1=right, 0=left
+    // Using +1=right, -1=left
     var dir = Math.floor(Math.random()*2);
     if (dir===0) {
         dir = -1;
@@ -29,9 +39,10 @@ Enemy.prototype.getDirection = function() {
     return dir;
 }
 
+// Determine what sprite to use, based on direction
 Enemy.prototype.getEnemySprite = function(dir) {
     var sprite;
-    if (dir===1) {
+    if (dir>0) {
         // Define Rightward walking bug
         sprite = 'images/enemy-bug.png';
     } else {
@@ -41,6 +52,7 @@ Enemy.prototype.getEnemySprite = function(dir) {
     return sprite;
 }
 
+// Determine speed for the enemy
 Enemy.prototype.getSpeed = function() {
     var speed = Math.random() * 90+30; // Speed from 30 to 120
     return speed; //Math.random() * 100;
@@ -70,17 +82,10 @@ Enemy.prototype.render = function() {
 // Remove enemy, and respawn in random direction and speed
 Enemy.prototype.reset = function() {
 
-    this.direction = this.getDirection();
-
-    this.sprite = this.getEnemySprite(this.direction);
-
-    // Set constant speed of this enemy
-    this.speed = this.getSpeed() * this.direction;
-
-    this.x = (this.direction === 1) ? -101:589;
-
     var rowNum = Math.floor(Math.random()*5);
-    this.y = rowNum * 83; // Define row position
+
+    // Reinitialize enemy after it passes offscreen
+    this.init(rowNum);
 
 }
 
@@ -100,7 +105,8 @@ Enemy.prototype.unpause = function() {
 // a handleInput() method.
 var Player = function() {
 
-    this.playChar = 0; // default, use boy as character
+    // Select Boy as a default character
+    this.playChar = 0; // 0=first in list of player's characters
 
     // Load a player character
     this.sprite = this.getPlayChar(this.playChar);
@@ -189,15 +195,17 @@ Player.prototype.handleInput = function( key )
         case 'pause':
             pauseGame();  // Pause/Unpause Game
             break;
+        case 'restart':
+            restartGame();  // Restart/Reset Game
+            break;
 
         default:
             break;
     }
 }
 
-
+// Function to pause and unpause game. Remains in pause state when game is over.
 function pauseGame() {
-    //console.log("pauseGame1 isPauseState,isGameOver="+isPauseState+","+isGameOver)
     if (isPauseState && !isGameOver) {
         allEnemies.forEach( function( enemy ) {
             enemy.unpause();
@@ -206,7 +214,6 @@ function pauseGame() {
         isPauseState = false;
     }
     else {
-    //console.log("pauseGame2 isPauseState,isGameOver="+isPauseState+","+isGameOver)
         allEnemies.forEach( function( enemy ) {
             enemy.pause();
         });
@@ -214,7 +221,6 @@ function pauseGame() {
         isPauseState = true;
     }
 }
-
 
 
 // This function resets the player's position and score
@@ -229,6 +235,7 @@ Player.prototype.reset = function() {
     this.sprite = this.getPlayChar(this.playChar);
 }
 
+// Determine player sprite
 Player.prototype.getPlayChar = function(playChar) {
     var playerImages = [
         'images/char-boy.png',
@@ -238,8 +245,6 @@ Player.prototype.getPlayChar = function(playChar) {
         'images/char-princess-girl.png'
         ];
 
-    //Pick random Player.
-    //var rnd = Math.floor( Math.random() * 5);
     return playerImages[playChar];
 }
 
@@ -260,12 +265,14 @@ Gem.prototype.render = function() {
     ctx.drawImage( Resources.get( this.sprite ), this.x, this.y );
 }
 
+// Reset Gem in new location
 Gem.prototype.reset = function() {
     this.x = Math.floor( ( Math.random() * 404 ) + 1 );
     this.y = Math.floor( ( Math.random() * 4 ) + 1 ) * 83;
     this.sprite = this.getRandomGem();
 }
 
+// Provide a random color gem to display
 Gem.prototype.getRandomGem = function() {
     var gemImages = [
         'images/Gem Blue.png',
@@ -297,15 +304,15 @@ Rock.prototype.render = function() {
     ctx.drawImage( Resources.get( this.sprite ), this.x, this.y );
 }
 
+// Set rock position
 Rock.prototype.reset = function() {
     this.x = Math.floor( ( Math.random() * 404 ) + 1 );
     this.y = Math.floor( ( Math.random() * 4 ) + 1 ) * 83;
     this.sprite = this.getRandomRock();
-    //console.log(document.getElementById("mode").value)
-    //this.allowRock = document.getElementById("mode").value;
     changeRockMode(document.getElementById("mode").value)
 }
 
+// Provide rock sprite to use. If there are other Rock images, add here.
 Rock.prototype.getRandomRock = function() {
     var rockImages = [
         'images/Rock.png'
@@ -314,14 +321,14 @@ Rock.prototype.getRandomRock = function() {
     return rockImages[0];
 }
 
+// Call function when player selects a different character
 function changePlayer(playChar) {
     player.playChar = playChar;
     player.sprite = player.getPlayChar(playChar);
 }
 
+// Call function when player decides to have rock in game or no rock in game
 function changeRockMode(allowRock) {
-    //if (isGameOver) return;
-
     rock.allowRock = allowRock;
     if (allowRock == "norock") { // if no rock, just move it offscreen so nothing will collide with it
         rock.x = -500;
@@ -333,6 +340,13 @@ function changeRockMode(allowRock) {
 
 }
 
+// Call function when player changes game length
+function changeGameLength(newGameLength) {
+    timer.secondsPerGame = newGameLength;
+    timer.reset();
+}
+
+// Function to restart the game
 function restartGame() {
 
         // noop
@@ -347,10 +361,16 @@ function restartGame() {
         timer.reset();
         isPauseState = false;
         isGameOver = false;
+        $(".gameovercontainer").css("display","none");
+        $("#score").text(" 0 ");
+
 }
 
+// Function to show "Game Over" message, and stop all entities from moving.
 function gameOver() {
             console.log("Game Over. Final score is "+player.score+".");
+            $("#gameoverscore").text(player.score);
+            $(".gameovercontainer").css("display","block");
         //    pauseState = true;
             isGameOver = true;
             pauseGame();
@@ -358,53 +378,43 @@ function gameOver() {
 
 // Object to keep track of clock during game
 var Timer = function() {
-//console.log("date.now="+Date.now());
 
-    var SECONDSPERGAME = 10;
+    var SECONDSPERGAME = 30;
 
+    // Initial game start time
     this.initialClock = Date.now() / 1000; // time is in milliseconds
 
     // Allotted time per game
     this.secondsPerGame = SECONDSPERGAME;
-    //this.finishTime = this.secondsPerGame + this.initialClock;
 
+    // Track current game clock
     this.currentTime = this.initialClock;
 
+    // If player pauses the game, use this to maintain offset time
     this.pauseTime = 0;
 
 }
 
+// Track current game time, and whether game should still go on.
 Timer.prototype.update = function() {
     this.currentTime = Date.now() / 1000;
-    var gameclock = this.currentTime - this.initialClock;
+    var gameclock = Math.floor(this.currentTime - this.initialClock);
 
-    if (gameclock <= this.secondsPerGame+1 && !isPauseState) {
+    if (gameclock <= this.secondsPerGame && !isPauseState) {
         // update the clock
-        document.getElementById("clock").innerHTML = Math.floor(this.currentTime - this.initialClock);
+        document.getElementById("clock").innerHTML = this.secondsPerGame - gameclock; // Countdown to Zero
     } else {
-
         if (!isPauseState) {
-        //    allEnemies.forEach( function( enemy ) {
-        //        enemy.pause();
-        //    });
-        ////    console.log("Game Over. Final score is "+player.score+".");
-        //    pauseState = true;
-        ////    pauseGame();
-        ////    isGameOver = true;
             gameOver();
         }
-
     }
-
 }
 
+// Return current game time
 Timer.prototype.getCurrentTime = function() {
     return this.currentTime;
 }
 
-//Timer.prototype.getFinalTime = function() {
-//    return this.finishTime;
-//}
 
 // To preserve game time, save time when game paused. Later when game resumes, find amount of time passed, add difference back to initial time.
 Timer.prototype.pauseGameTime = function() {
@@ -417,7 +427,6 @@ Timer.prototype.resumeGameTime = function() {
 
 Timer.prototype.reset = function() {
     this.initialClock = Date.now() / 1000; // time is in milliseconds
-    //this.finishTime = this.secondsPerGame + this.initialClock;
     this.currentTime = this.initialClock;
 }
 
@@ -446,8 +455,27 @@ document.addEventListener('keyup', function(e) {
         39: 'right',
         40: 'down',
         112: 'pause',
-        80: 'pause'
+        114: 'restart',
+        80: 'pause',
+        82: 'restart'
     };
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
+// Player using arrow links to play game
+function moveUp() {
+    player.handleInput('up');
+}
+
+function moveLeft() {
+    player.handleInput('left');
+}
+
+function moveRight() {
+    player.handleInput('right');
+}
+
+function moveDown() {
+    player.handleInput('down');
+}

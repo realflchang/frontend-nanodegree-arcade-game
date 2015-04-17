@@ -1,44 +1,98 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Effective JavaScript: Frogger</title>
-    <link rel="stylesheet" href="css/style.css">
+	<title>Effective JavaScript: Frogger</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!--<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">-->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/style.css">
+	<script src="js/jquery-1.11.2.min.js"></script>
 </head>
 <body>
-    <script src="js/resources.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/engine.js"></script>
 
-    <div id="score-text"> <h2>SCORE</h2> </div>
-    <div id="score"> 0 </div>
+	<div class="container">
+		<div class="row">
 
-    <div id="clock-text"> <h2>CLOCK</h2> </div>
-    <div id="clock">  </div>
+			<div class="col-xs-12 col-sm-9 gameStage">
+				<div class="col-xs-6 score-text">
+					SCORE:
+					<span id="score" classx="bg-warning"> 0 </span>
+				</div>
 
-    <p>Press P to pause game.</p>
-	<p><input type="button" name="restart" value="Restart Game" onclick="restartGame();"></input></p>
+				<div class="col-xs-6 clock-text">
+					CLOCK:
+					<span id="clock" classx="bg-warning">  </span>
+				</div>
+
+				<div id="gameStage"></div>
+
+				<div class="gameovercontainer">
+					Game Over! Final score is <span id="gameoverscore">0</span>.<br>
+					Press R to Restart.
+				</div>
+				<script src="js/resources.js"></script>
+				<script src="js/app.js"></script>
+				<script src="js/engine.js"></script>
+			</div><!--end gameStage-->
+
+			<div class="col-xs-6 col-sm-3 gamePanel text-center">
+
+				<h2>Bugger!<br><small>(Frogger Clone)</small></h2>
+
+				<div class="bg-success">
+					Press P to pause/unpause game.<br>
+					Press R to quit and restart.<br>Arrow keys to move.
+
+				</div>
+				<p>
+					<input type="button" name="pause" value="P" onclick="pauseGame();" class="btn btn-primary"></input>
+					<input type="button" name="restart" value="R" onclick="restartGame();" class="btn btn-danger"></input>
+				</p>
 
 
-	<form>
-		<p>Select a Character:
-		<select name="char" onchange="changePlayer(this.value)">
-		  <option value="0">Boy</option>
-		  <option value="1">Cat Girl</option>
-		  <option value="2">Horn Girl</option>
-		  <option value="3">Pink Girl</option>
-		  <option value="4">Princess Girl</option>
-		</select>
-		</p>
+				<form>
+					<p>Character:
+					<select name="char" onchange="changePlayer(this.value)">
+						<option value="0">Boy</option>
+						<option value="1">Cat Girl</option>
+						<option value="2">Horn Girl</option>
+						<option value="3">Pink Girl</option>
+						<option value="4">Princess Girl</option>
+					</select>
+					</p>
 
-		<p>Allow Rock:
-		<select id="mode" onchange="changeRockMode(this.value)">
-		  <option value="rock">Rock</option>
-		  <option value="norock">No Rock</option>
-		</select>
-		</p>
+					<p>Allow Rock:
+					<select id="mode" onchange="changeRockMode(this.value)">
+						<option value="rock">Rock</option>
+						<option value="norock">No Rock</option>
+					</select>
+					</p>
 
+					<p>Game Length:
+					<select id="gamelength" onchange="changeGameLength(this.value)">
+						<option value="30">30 Seconds</option>
+						<option value="60">60 Seconds</option>
+						<option value="3600">1 Hour</option>
+						<option value="10">10 Seconds</option>
+					</select>
+					</p>
+				</form>
+			</div><!--end gamePanel-->
 
-	</form>
+			<div class="col-xs-6 col-sm-3 gameControl text-center">
+					<div class="keycontrols center-block">
+						<div onclick="moveUp(); return false;" class="dirup">&uarr;</div><br>
+						<div onclick="moveLeft(); return false;" class="dirleft">&lt;</div>
+						<div onclick="moveRight(); return false;" class="dirright">&gt;</div><br>
+						<div onclick="moveDown(); return false;" class="dirdown">&darr;</div>
+					</div>
+
+				</form>
+			</div><!--end gameControl-->
+
+		</div><!--end row-->
+
+	</div><!--end container-->
 
 </body>
 </html>

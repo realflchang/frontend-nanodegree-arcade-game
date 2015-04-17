@@ -1,3 +1,80 @@
 body {
     text-align: center;
 }
+
+.container {
+	margin-bottom:50px;
+}
+
+.gameStage {
+	max-width: 600px;
+	height:606px;
+	background:black;
+	position: relative;
+}
+.gamePanel input:first-child {
+	margin-right:20%;
+}
+
+.keycontrols {
+	background:#E0E0E0;
+	margin-top:20px;
+	border-radius:20px;
+	text-align:center;
+	padding: 20px 0;
+}
+
+.keycontrols div {
+	max-width:70px;
+	width:35%;
+	height:50px;
+	border: 1px solid #666;
+	border-radius: 15px;
+	display: inline-block;
+	font-size: large;
+}
+
+.keycontrols div:active {
+	background:red;
+}
+
+.keycontrols .dirup {
+	margin-bottom:10px;
+}
+
+.keycontrols .dirleft {
+	margin-right:40px;
+}
+
+.keycontrols .dirdown {
+	margin-top:10px;
+}
+
+.gameovercontainer {
+	position: absolute;
+	z-index: +2;
+	left: 15%;
+	top: 155px;
+	color: orange;
+	font-size: xx-large;
+	display: none;
+	background: #F0F0F0;
+	padding:10px;
+	border-radius: 10px;
+
+}
+
+.score-text, .clock-text {
+	position: absolute;
+	z-index: +2;
+	top: 10px;
+	color: white;
+}
+
+.score-text {
+	left: 15%;
+}
+
+.clock-text {
+	right: 15%;
+}

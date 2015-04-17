@@ -27,7 +27,8 @@ var Engine = (function(global) {
 
     canvas.width = 505;
     canvas.height = 606;
-    doc.body.appendChild(canvas);
+    //doc.body.appendChild(canvas);
+    document.getElementById("gameStage").appendChild(canvas);
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -103,14 +104,14 @@ var Engine = (function(global) {
      *
      */
     function checkCollisions() {
-        var i=0; // Enemy index
+        // If game is over, stop checking for collisions
+        if (isGameOver) { return; }
 
         // Check whether player came in contact with each enemy, and if enemy encounters a rock
         allEnemies.forEach( function( enemy ) {
             if ( player.x < enemy.x + 60 && player.x + 60 > enemy.x && player.y < enemy.y + 60 && player.y + 50 > enemy.y )
             {
-                //// global reset (player, bugs, gem, score) and restart game
-                //reset();
+                // If bug touches player, game is over.
                 gameOver();
             }
 
@@ -118,23 +119,30 @@ var Engine = (function(global) {
             if ( rock.x < enemy.x + 100 && rock.x + 100 > enemy.x && rock.y < enemy.y + 60 && rock.y + 50 > enemy.y )
             {
                 enemy.direction = -1 * enemy.direction;
-                enemy.sprite = enemy.getEnemySprite(enemy.direction);
 
-                // Set constant speed of this enemy
-                enemy.speed = enemy.getSpeed() * enemy.direction;
+                // Update speed of this enemy
+                //enemy.speed = enemy.getSpeed() * enemy.direction;
+                enemy.speed = enemy.speed * enemy.direction;
+                enemy.sprite = enemy.getEnemySprite(enemy.speed);
             }
 
             // If a bug encounters a gem, just change its direction
             if ( gem.x < enemy.x + 100 && gem.x + 100 > enemy.x && gem.y < enemy.y + 60 && gem.y + 50 > enemy.y )
             {
                 enemy.direction = -1 * enemy.direction;
-                enemy.sprite = enemy.getEnemySprite(enemy.direction);
 
-                // Set constant speed of this enemy
-                enemy.speed = enemy.getSpeed() * enemy.direction;
+                // Update speed of this enemy
+                //enemy.speed = enemy.getSpeed() * enemy.direction;
+                enemy.speed = enemy.speed * enemy.direction;
+                enemy.sprite = enemy.getEnemySprite(enemy.speed);
+
+                // If Gem was placed on top of bug, reset gem again.
+                if ( gem.x < enemy.x + 85 && gem.x + 85 > enemy.x) {
+                    gem.reset();
+                }
+
             }
 
-            i++;
         } );
 
         // Check whether player came in contact with a gem
@@ -229,18 +237,6 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        /**
-        // noop
-        player.reset();
-        //document.getElementById( "score" ).innerHTML = player.score;
-        allEnemies.forEach( function( enemy )
-        {
-            enemy.reset();
-        });
-        gem.reset();
-        rock.reset();
-        timer.reset();
-        **/
         restartGame();
     }
 
