@@ -53,7 +53,7 @@ body {
 .gameovercontainer {
 	position: absolute;
 	z-index: +2;
-	left: 15%;
+	left: 10%;
 	top: 155px;
 	color: orange;
 	font-size: xx-large;

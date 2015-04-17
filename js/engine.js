@@ -150,7 +150,7 @@ var Engine = (function(global) {
             player.score++;
 
             // update the score
-            document.getElementById("score").innerHTML = player.score;
+            updateScore();
 
             // reset the gem, and respawn in a different location
             gem.reset();

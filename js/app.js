@@ -139,9 +139,12 @@ Player.prototype.update = function() {
         this.x = 404;
     }
 
-    // player attempts to move off the top side
+    // player attempts to move off the top side, player wins and starts again from the bottom.
+    // Add 100 to the score for reaching water.
     else if ( this.y + this.changeY < 0 ) {
-        this.y = 0;
+        this.y = 600;
+        this.score = this.score + 100;
+        updateScore();
     }
 
     // player attempts to move off the bottom side
@@ -351,7 +354,6 @@ function restartGame() {
 
         // noop
         player.reset();
-        //document.getElementById( "score" ).innerHTML = player.score;
         allEnemies.forEach( function( enemy )
         {
             enemy.reset();
@@ -368,12 +370,16 @@ function restartGame() {
 
 // Function to show "Game Over" message, and stop all entities from moving.
 function gameOver() {
-            console.log("Game Over. Final score is "+player.score+".");
             $("#gameoverscore").text(player.score);
             $(".gameovercontainer").css("display","block");
-        //    pauseState = true;
             isGameOver = true;
             pauseGame();
+}
+
+// Function to update the score as needed, ie. when collecting gems, or reaching water
+function updateScore() {
+        // update the score
+        document.getElementById("score").innerHTML = player.score;
 }
 
 // Object to keep track of clock during game
@@ -463,7 +469,7 @@ document.addEventListener('keyup', function(e) {
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
-// Player using arrow links to play game
+// Player using arrow buttons on-screen to play game
 function moveUp() {
     player.handleInput('up');
 }
