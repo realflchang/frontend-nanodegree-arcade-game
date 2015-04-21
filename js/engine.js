@@ -43,16 +43,20 @@ var Engine = (function(global) {
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
 
-        /* Call our update/render functions, pass along the time delta to
-         * our update function since it may be used for smooth animation.
-         */
-        update(dt);
-        render();
+        if (!isPauseState) {
+            /* Call our update/render functions, pass along the time delta to
+             * our update function since it may be used for smooth animation.
+             */
+            update(dt);
+            render();
+
+        }
 
         /* Set our lastTime variable which is used to determine the time delta
          * for the next time this function is called.
          */
         lastTime = now;
+
 
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
@@ -107,8 +111,12 @@ var Engine = (function(global) {
         // If game is over, stop checking for collisions
         if (isGameOver) { return; }
 
+        var i=1;
+        var debug="";
         // Check whether player came in contact with each enemy, and if enemy encounters a rock
         allEnemies.forEach( function( enemy ) {
+            debug += "<br>location of enemy("+i+"): "+enemy.x+", "+enemy.y;
+            i++;
             if ( player.x < enemy.x + 60 && player.x + 60 > enemy.x && player.y < enemy.y + 60 && player.y + 50 > enemy.y )
             {
                 // If bug touches player, game is over.
@@ -144,6 +152,7 @@ var Engine = (function(global) {
             }
 
         } );
+        $("#debug").html(debug);
 
         // Check whether player came in contact with a gem
         if ( player.x < gem.x + 60 && player.x + 60 > gem.x && player.y < gem.y + 85 && player.y + 50 > gem.y ) {
@@ -223,8 +232,10 @@ var Engine = (function(global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
+        var i=1;
         allEnemies.forEach(function(enemy) {
-            enemy.render();
+            enemy.render(i);
+            i++;
         });
 
         player.render();
