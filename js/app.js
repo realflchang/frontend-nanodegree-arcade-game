@@ -25,7 +25,7 @@ Enemy.prototype.init = function(rowNum) {
 
     // Define starting position
     this.x = (this.direction === 1) ? -101:589;
-    this.y = rowNum * 83; // Define row position
+    this.y = rowNum * 83 + 50; // Define row position
 
 };
 
@@ -74,7 +74,6 @@ Enemy.prototype.update = function(dt) {
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function(i) {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    ctx.fillText(i, this.x, this.y + 90);
 };
 
 // Remove enemy, and respawn in random direction and speed
@@ -174,22 +173,30 @@ Player.prototype.handleInput = function( key ) {
     switch(key) {
         case 'left':
             if (!isPauseState)
-              this.changeX = -30;
+              this.changeX = -101;
             break;
 
         case 'up':
-            if (!isPauseState)
-              this.changeY = -30;
+            if (!isPauseState) {
+                this.changeY = -83;
+                if (this.y >= 20 + (83 * 5) ) { // Player at bottom row, first step up uses smaller step
+                    this.changeY = -53;
+                }
+            }
             break;
 
         case 'right':
             if (!isPauseState)
-              this.changeX = 30;
+              this.changeX = 101;
             break;
 
         case 'down':
-            if (!isPauseState)
-              this.changeY = 30;
+            if (!isPauseState) {
+                this.changeY = 83;
+                if (this.y >= 20 + (83 * 4) ) { // Player going to bottom row, last step down uses smaller step
+                    this.changeY = 53;
+                }
+            }
             break;
         case 'pause':
             pauseGame();  // Pause/Unpause Game
@@ -254,8 +261,8 @@ var Gem = function() {
     // gems appear at random X locations and
     // on the same rows as the bugs;
     // gems won't initially appear on the bottom row with the player
-    this.x = Math.floor( (Math.random() * 404) + 1);
-    this.y = Math.floor( (Math.random() * 4) + 1) * 83;
+    this.x = randomXPos();
+    this.y = randomYPos();
 
     this.scoreValue = 1;
 };
@@ -266,8 +273,8 @@ Gem.prototype.render = function() {
 
 // Reset Gem in new location
 Gem.prototype.reset = function() {
-    this.x = Math.floor( (Math.random() * 404) + 1);
-    this.y = Math.floor( (Math.random() * 4) + 1) * 83;
+    this.x = randomXPos();
+    this.y = randomYPos();
     this.sprite = this.getRandomGem();
 };
 
@@ -294,8 +301,8 @@ var Rock = function() {
     // Rock appear at random X locations and
     // on the same rows as the bugs;
     // Rock won't initially appear on the bottom row with the player
-    this.x = Math.floor( (Math.random() * 404) + 1);
-    this.y = Math.floor( (Math.random() * 4) + 1) * 83;
+    this.x = randomXPos();
+    this.y = randomYPos();
 
 };
 
@@ -305,8 +312,8 @@ Rock.prototype.render = function() {
 
 // Set rock position
 Rock.prototype.reset = function() {
-    this.x = Math.floor( (Math.random() * 404) + 1);
-    this.y = Math.floor( (Math.random() * 4) + 1) * 83;
+    this.x = randomXPos();
+    this.y = randomYPos();
     this.sprite = this.getRandomRock();
     changeRockMode(document.getElementById("mode").value);
 };
@@ -319,6 +326,16 @@ Rock.prototype.getRandomRock = function() {
 
     return rockImages[0];
 };
+
+// Returns random X Position for Rocks and Gems
+function randomXPos() {
+    return Math.floor( (Math.random() * 5) ) * 101;
+}
+
+// Returns random Y Position for Rocks and Gems
+function randomYPos() {
+    return Math.floor( (Math.random() * 4) ) * 83 + 50;
+}
 
 // Call function when player selects a different character
 function changePlayer(playChar) {
@@ -333,8 +350,8 @@ function changeRockMode(allowRock) {
         rock.x = -500;
         rock.y = -500;
     } else { // if rock, just restore it back onscreen
-        rock.x = Math.floor( (Math.random() * 404) + 1);
-        rock.y = Math.floor( (Math.random() * 4) + 1) * 83;
+        rock.x = randomXPos();
+        rock.y = randomYPos();
     }
 
 }
@@ -364,9 +381,17 @@ function restartGame() {
 
 }
 
-// Function to show "Game Over" message, and stop all entities from moving.
-function gameOver() {
-    $("#gameoverscore").text(player.score);
+// Function to show Game Over message, and stop all entities from moving.
+function gameOver(mesg) {
+    switch(mesg) {
+        case 'timeisup':
+            mesg = "Time is up! Final score is "+player.score+".<br>Press R to Restart.";
+        break;
+        case 'bug':
+            mesg = "A bug has bit you!<br>Final score is "+player.score+".<br>Press R to Restart.";
+        break;
+    }
+    $(".gameovercontainer").html(mesg);
     $(".gameovercontainer").css("display","block");
     isGameOver = true;
     pauseGame();
@@ -410,7 +435,7 @@ Timer.prototype.update = function() {
         document.getElementById("clock").innerHTML = this.secondsPerGame - gameclock;
     } else {
         if (!isPauseState) {
-            gameOver();
+            gameOver("timeisup");
         }
     }
 };

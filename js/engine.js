@@ -43,6 +43,8 @@ var Engine = (function(global) {
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
 
+        /* If game is paused, no need to keep updating/rendering to save PC resources
+         */
         if (!isPauseState) {
             /* Call our update/render functions, pass along the time delta to
              * our update function since it may be used for smooth animation.
@@ -111,36 +113,27 @@ var Engine = (function(global) {
         // If game is over, stop checking for collisions
         if (isGameOver) { return; }
 
-        var i=1;
-        var debug="";
         // Check whether player came in contact with each enemy, and if enemy encounters a rock
         allEnemies.forEach( function( enemy ) {
-            debug += "<br>location of enemy("+i+"): "+enemy.x+", "+enemy.y;
-            i++;
-            if ( player.x < enemy.x + 60 && player.x + 60 > enemy.x && player.y < enemy.y + 60 && player.y + 50 > enemy.y )
-            {
+            if ( player.x < enemy.x + 70 && player.x + 70 > enemy.x && player.y < enemy.y + 80 && player.y + 80 > enemy.y ) {
                 // If bug touches player, game is over.
-                gameOver();
+                gameOver("bug");
             }
 
             // If a bug encounters a rock, just change its direction
-            if ( rock.x < enemy.x + 100 && rock.x + 100 > enemy.x && rock.y < enemy.y + 60 && rock.y + 50 > enemy.y )
-            {
+            if ( rock.x < enemy.x + 100 && rock.x + 100 > enemy.x && rock.y < enemy.y + 60 && rock.y + 50 > enemy.y ) {
                 enemy.direction = -1 * enemy.direction;
 
                 // Update speed of this enemy
-                //enemy.speed = enemy.getSpeed() * enemy.direction;
                 enemy.speed = enemy.speed * enemy.direction;
                 enemy.sprite = enemy.getEnemySprite(enemy.speed);
             }
 
             // If a bug encounters a gem, just change its direction
-            if ( gem.x < enemy.x + 100 && gem.x + 100 > enemy.x && gem.y < enemy.y + 60 && gem.y + 50 > enemy.y )
-            {
+            if ( gem.x < enemy.x + 100 && gem.x + 100 > enemy.x && gem.y < enemy.y + 60 && gem.y + 50 > enemy.y ) {
                 enemy.direction = -1 * enemy.direction;
 
                 // Update speed of this enemy
-                //enemy.speed = enemy.getSpeed() * enemy.direction;
                 enemy.speed = enemy.speed * enemy.direction;
                 enemy.sprite = enemy.getEnemySprite(enemy.speed);
 
@@ -152,10 +145,10 @@ var Engine = (function(global) {
             }
 
         } );
-        $("#debug").html(debug);
 
         // Check whether player came in contact with a gem
-        if ( player.x < gem.x + 60 && player.x + 60 > gem.x && player.y < gem.y + 85 && player.y + 50 > gem.y ) {
+        //if ( player.x < gem.x + 60 && player.x + 60 > gem.x && player.y < gem.y + 85 && player.y + 50 > gem.y ) {
+        if ( player.x < gem.x + 60 && player.x + 60 > gem.x && player.y < gem.y + 70 && player.y + 50 > gem.y ) {
             player.score++;
 
             // update the score
@@ -171,7 +164,7 @@ var Engine = (function(global) {
         }
 
         // However, player is blocked from movement if player collides with rock
-        if ( player.x < rock.x + 60 && player.x + 60 > rock.x && player.y < rock.y + 85 && player.y + 50 > rock.y ) {
+        if ( player.x < rock.x + 60 && player.x + 60 > rock.x && player.y < rock.y + 70 && player.y + 50 > rock.y ) {
             player.changeX = -1 * player.lastChangeX;
             player.changeY = -1 * player.lastChangeY;
             player.update();
@@ -220,8 +213,8 @@ var Engine = (function(global) {
             }
         }
 
-
         renderEntities();
+
     }
 
     /* This function is called by the render function and is called on each game
@@ -233,14 +226,14 @@ var Engine = (function(global) {
          * the render function you have defined.
          */
         var i=1;
+        gem.render();
+        rock.render();
         allEnemies.forEach(function(enemy) {
             enemy.render(i);
             i++;
         });
 
         player.render();
-        gem.render();
-        rock.render();
     }
 
     /* This function does nothing but it could have been a good place to
